@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملك المعارض - وثيقة التصميم التفاعلية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Neutrals & Executive Gold -->
+    <!-- Background: Stone-50 (Warm White) -->
+    <!-- Cards: White -->
+    <!-- Text: Stone-800 (Charcoal) -->
+    <!-- Accents: Amber-600 (Gold/Bronze) for the 'King' feel, Slate-500 for secondary text -->
+    
+    <!-- Application Structure Plan: 
+         The app is designed as an "Investor & Developer Dashboard" to visualize the game's potential.
+         1. **Hero Section**: Hooks the user with the Game Identity (Title, Genre, Goal).
+         2. **Gameplay Loop (Interactive Tabs)**: Breaks down the daily cycle (Buy -> Prep -> Sell) into digestible steps to prevent information overload.
+         3. **The Garage (Data Viz)**: Uses a Radar Chart to compare car classes, crucial for understanding the game's RPG-like depth.
+         4. **Negotiation Simulator (Mini-Game)**: A live interactive module simulating the core "Deal" mechanic to demonstrate the AI logic described in the GDD.
+         5. **World & Economy**: Grid layout for map locations and a Doughnut chart for budget allocation/economy.
+         6. **Roadmap**: Vertical timeline to show the development phases clearly.
+         Why this structure? It moves from high-level concept -> core mechanics -> deep systems -> execution plan.
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. **Radar Chart (Chart.js)**: Chosen for Car Stats (Speed, Safety, etc.) because it perfectly visualizes the trade-offs between vehicle classes (e.g., Sport vs Family) described in the GDD.
+         2. **Doughnut Chart (Chart.js)**: Chosen for Budget Allocation to clearly show the 40/40/20 split mentioned in the report.
+         3. **Negotiation HTML/JS Interaction**: Instead of a static chart, I built a mini-simulator. The GDD emphasizes the "Satisfaction Bar" and "Dialogue Options", so experiencing it is better than reading about it.
+         4. **Map Grid**: Used CSS Grid with Tailwind to represent the "Open World" nodes abstractly since I cannot generate raster images.
+         5. **Timeline**: CSS-styled list for the Roadmap to show progression.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #fafaf9; /* stone-50 */
+            color: #292524; /* stone-800 */
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .btn-interactive {
+            transition: all 0.3s ease;
+        }
+        .btn-interactive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom Scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Header / Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-stone-200">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center gap-3 mb-4 md:mb-0">
+                <span class="text-3xl">👑</span>
+                <div>
+                    <h1 class="text-2xl font-bold text-stone-900 leading-none">ملك المعارض</h1>
+                    <p class="text-xs text-amber-600 font-bold tracking-wider uppercase mt-1">King of the Exhibitions V3.0</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap justify-center gap-2">
+                <button onclick="scrollToSection('identity')" class="px-4 py-2 text-sm font-medium rounded-lg hover:bg-stone-100 transition-colors">الهوية</button>
+                <button onclick="scrollToSection('gameplay')" class="px-4 py-2 text-sm font-medium rounded-lg hover:bg-stone-100 transition-colors">أسلوب اللعب</button>
+                <button onclick="scrollToSection('cars')" class="px-4 py-2 text-sm font-medium rounded-lg hover:bg-stone-100 transition-colors">السيارات</button>
+                <button onclick="scrollToSection('negotiation')" class="px-4 py-2 text-sm font-medium rounded-lg hover:bg-stone-100 transition-colors">التفاوض</button>
+                <button onclick="scrollToSection('world')" class="px-4 py-2 text-sm font-medium rounded-lg hover:bg-stone-100 transition-colors">العالم والاقتصاد</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 space-y-16 flex-grow">
+
+        <!-- Section 1: Identity & Vision -->
+        <section id="identity" class="grid md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
+                    <h2 class="text-3xl font-bold mb-4 text-stone-800 border-r-4 border-amber-500 pr-4">الرؤية العامة</h2>
+                    <p class="text-lg text-stone-600 leading-relaxed mb-4">
+                        لعبة <strong>ملك المعارض</strong> ليست مجرد لعبة بيع وشراء، بل هي تجربة محاكاة وإدارة استراتيجية تضعك في مقعد السائق لإمبراطورية تجارية. تبدأ من معرض مهمل لتبني سمعة تناطح السحاب في مدينة نابضة بالحياة.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mt-6">
+                        <div class="bg-stone-50 p-4 rounded-xl text-center">
+                            <div class="text-2xl mb-1">🎮</div>
+                            <div class="text-xs text-stone-500 font-bold">النوع</div>
+                            <div class="font-bold text-stone-800">محاكاة - استراتيجية</div>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-xl text-center">
+                            <div class="text-2xl mb-1">💻</div>
+                            <div class="text-xs text-stone-500 font-bold">المنصة</div>
+                            <div class="font-bold text-stone-800">كمبيوتر (PC)</div>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-xl text-center">
+                            <div class="text-2xl mb-1">🌍</div>
+                            <div class="text-xs text-stone-500 font-bold">اللغة</div>
+                            <div class="font-bold text-stone-800">عربي - إنجليزي</div>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-xl text-center">
+                            <div class="text-2xl mb-1">🎯</div>
+                            <div class="text-xs text-stone-500 font-bold">الهدف</div>
+                            <div class="font-bold text-stone-800">أفضل معرض في المدينة</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
+                <h3 class="text-xl font-bold mb-4 text-stone-800">ركائز القصة والتقدم</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <span class="bg-amber-100 text-amber-700 p-2 rounded-lg text-xl">📜</span>
+                        <div>
+                            <h4 class="font-bold">الإرث المفقود</h4>
+                            <p class="text-sm text-stone-600">تبدأ القصة بوراثة معرض قديم كان مشهوراً، ومهمتك هي استعادة مجده الضائع.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-amber-100 text-amber-700 p-2 rounded-lg text-xl">⚡</span>
+                        <div>
+                            <h4 class="font-bold">تطور ديناميكي</h4>
+                            <p class="text-sm text-stone-600">ظهور منافسين، تغير أذواق السوق (مثل الطلب على السيارات الكهربائية)، ودعوات لمزادات حصرية.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-amber-100 text-amber-700 p-2 rounded-lg text-xl">🏆</span>
+                        <div>
+                            <h4 class="font-bold">شروط الفوز</h4>
+                            <p class="text-sm text-stone-600">السيطرة على السوق بالسمعة العالمية وامتلاك أكبر سلسلة معارض، وتجنب الإفلاس.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 2: Core Gameplay Loop -->
+        <section id="gameplay" class="bg-white rounded-3xl p-8 shadow-sm border border-stone-100">
+            <div class="max-w-3xl mx-auto text-center mb-10">
+                <h2 class="text-3xl font-bold text-stone-800 mb-3">دورة اللعب اليومية</h2>
+                <p class="text-stone-500">نظام اللعب يعتمد على حلقة تكرارية يومية تتطلب التخطيط الذكي. استكشف المراحل أدناه لمعرفة كيف يدار اليوم في اللعبة.</p>
+            </div>
+
+            <!-- Interactive Tabs -->
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <button onclick="showTab('step1')" class="loop-tab active bg-stone-800 text-white px-6 py-3 rounded-full font-bold transition-all shadow-lg" id="btn-step1">1. الشراء والبحث</button>
+                <button onclick="showTab('step2')" class="loop-tab bg-white text-stone-600 border border-stone-200 px-6 py-3 rounded-full font-bold transition-all hover:bg-stone-50" id="btn-step2">2. التجهيز والصيانة</button>
+                <button onclick="showTab('step3')" class="loop-tab bg-white text-stone-600 border border-stone-200 px-6 py-3 rounded-full font-bold transition-all hover:bg-stone-50" id="btn-step3">3. العرض والتفاوض</button>
+                <button onclick="showTab('step4')" class="loop-tab bg-white text-stone-600 border border-stone-200 px-6 py-3 rounded-full font-bold transition-all hover:bg-stone-50" id="btn-step4">4. التطوير والاستثمار</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="bg-stone-50 rounded-2xl p-8 min-h-[200px] flex items-center justify-center relative overflow-hidden">
+                
+                <div id="step1" class="tab-content text-center w-full animate-fade-in">
+                    <div class="text-5xl mb-4">🔍</div>
+                    <h3 class="text-2xl font-bold mb-2">الشراء والبحث</h3>
+                    <p class="text-stone-600 max-w-xl mx-auto">البداية تكون بالبحث عن الصفقات في <strong>سوق السيارات</strong>، أو المشاركة في <strong>المزادات الحكومية</strong>، أو اقتناص الفرص من زبائن يزورون المعرض لبيع سياراتهم.</p>
+                    <div class="mt-4 flex gap-2 justify-center text-xs text-stone-400 font-mono">
+                         بحث • مزاد • استيراد
+                    </div>
+                </div>
+
+                <div id="step2" class="tab-content hidden text-center w-full animate-fade-in">
+                    <div class="text-5xl mb-4">🛠️</div>
+                    <h3 class="text-2xl font-bold mb-2">التجهيز والصيانة</h3>
+                    <p class="text-stone-600 max-w-xl mx-auto">السيارة المشتراة ليست جاهزة للبيع فوراً. يجب نقلها إلى <strong>محطة البنزين</strong>، ثم <strong>المغسلة</strong> لزيادة لمعانها، وربما إصلاح الأعطال الميكانيكية لرفع قيمتها السوقية.</p>
+                </div>
+
+                <div id="step3" class="tab-content hidden text-center w-full animate-fade-in">
+                    <div class="text-5xl mb-4">🤝</div>
+                    <h3 class="text-2xl font-bold mb-2">العرض والتفاوض</h3>
+                    <p class="text-stone-600 max-w-xl mx-auto">جوهر اللعبة. رتب السيارات في الصالة تحت الإضاءة المناسبة. استقبل الزبائن واستخدم مهارات <strong>التفاوض الذكي</strong> لإقناعهم بالسعر دون خسارة السمعة.</p>
+                </div>
+
+                <div id="step4" class="tab-content hidden text-center w-full animate-fade-in">
+                    <div class="text-5xl mb-4">📈</div>
+                    <h3 class="text-2xl font-bold mb-2">التطوير والاستثمار</h3>
+                    <p class="text-stone-600 max-w-xl mx-auto">نهاية اليوم هي وقت الحسابات. ادفع الرواتب والفواتير، واستثمر الفائض في <strong>توسعة الصالة</strong>، تحسين الديكور، أو شراء <strong>أسهم</strong> في شركات السيارات.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section 3: Car Systems (Visualized) -->
+        <section id="cars" class="grid lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4 space-y-6">
+                <h2 class="text-3xl font-bold text-stone-800 border-r-4 border-amber-500 pr-4">منظومة السيارات</h2>
+                <p class="text-stone-600">
+                    تتميز كل سيارة في اللعبة بخمس خصائص تقنية تحدد قيمتها وجمهورها المستهدف. التوازن بين هذه الخصائص هو مفتاح الربح.
+                </p>
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
+                    <label class="block text-sm font-bold text-stone-700 mb-2">اختر فئة السيارة للتحليل:</label>
+                    <select id="carTypeSelector" onchange="updateCarChart()" class="w-full p-3 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="economy">سيارة اقتصادية (Economic)</option>
+                        <option value="family">سيارة عائلية (Family)</option>
+                        <option value="sport">سيارة رياضية (Sport)</option>
+                        <option value="electric">سيارة كهربائية (Electric)</option>
+                        <option value="rare">سيارة نادرة (Rare)</option>
+                    </select>
+                    <div id="carDescription" class="mt-4 text-sm text-stone-500 italic bg-stone-50 p-3 rounded-lg border border-stone-200">
+                        رخيصة، قليلة الاستهلاك، لكن سرعتها وأمانها متوسطين. شعبية عالية.
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 text-sm text-stone-600">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <strong>الحالة الفيزيائية:</strong> تؤثر الأوساخ والأعطال على السعر النهائي.
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-stone-600">
+                        <span class="w-2 h-2 rounded-full bg-stone-800"></span>
+                        <strong>الجرافيكس:</strong> انعكاسات واقعية وطلاء AAA.
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8 bg-white p-6 rounded-3xl shadow-sm border border-stone-100 flex flex-col items-center justify-center">
+                <h3 class="text-lg font-bold text-stone-400 mb-4 w-full text-center">تحليل خصائص الفئة</h3>
+                <div class="chart-container">
+                    <canvas id="carRadarChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Negotiation Simulator (Interactive) -->
+        <section id="negotiation" class="bg-gradient-to-br from-stone-900 to-stone-800 text-white rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+            <!-- Decorative Background Element -->
+            <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none text-[20rem] font-bold leading-none select-none flex items-center justify-center">
+                $
+            </div>
+
+            <div class="relative z-10 grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-amber-500 mb-4">نظام التفاوض الذكي (AI)</h2>
+                    <p class="text-stone-300 mb-6 leading-relaxed">
+                        البيع في "ملك المعارض" ليس عشوائياً. لكل زبون "شريط رضا" يتأثر بقراراتك. جرب المحاكاة لترى كيف يؤثر أسلوبك على فرصة البيع والسمعة.
+                    </p>
+                    
+                    <div class="bg-stone-800/50 p-4 rounded-xl border border-stone-700 backdrop-blur-sm">
+                        <h4 class="text-sm font-bold text-stone-400 mb-3 uppercase tracking-wider">عوامل النجاح</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex justify-between">
+                                <span>🗣️ أسلوب الحوار</span>
+                                <span class="text-amber-500">ذكي / عادي / مخاطرة</span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span>🧼 نظافة السيارة</span>
+                                <span class="text-green-400">+ تأثير إيجابي</span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span>🎁 الهدايا والخصومات</span>
+                                <span class="text-blue-400">حسم الصفقة</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Simulation UI -->
+                <div class="bg-white text-stone-800 rounded-2xl p-6 shadow-xl max-w-md mx-auto w-full">
+                    <div class="flex justify-between items-center mb-4 pb-4 border-b border-stone-100">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-stone-200 p-2 rounded-full">👤</span>
+                            <div>
+                                <div class="font-bold text-sm">زبون افتراضي</div>
+                                <div class="text-xs text-stone-500">مهتم بسيارة رياضية</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-stone-500">السعر المطلوب</div>
+                            <div class="font-bold text-green-600">$45,000</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span>رضا الزبون</span>
+                            <span id="satisfactionValue">50%</span>
+                        </div>
+                        <div class="w-full bg-stone-200 rounded-full h-3">
+                            <div id="satisfactionBar" class="bg-amber-500 h-3 rounded-full transition-all duration-500" style="width: 50%"></div>
+                        </div>
+                        <p id="feedbackText" class="text-xs text-center mt-2 text-stone-500 h-4">اختر أسلوباً للتفاوض...</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <button onclick="negotiate('smart')" class="btn-interactive bg-blue-50 text-blue-700 py-2 rounded-lg text-sm font-bold border border-blue-100 hover:bg-blue-100">
+                            🧠 ذكي
+                        </button>
+                        <button onclick="negotiate('normal')" class="btn-interactive bg-stone-50 text-stone-700 py-2 rounded-lg text-sm font-bold border border-stone-200 hover:bg-stone-100">
+                            ⚖️ متزن
+                        </button>
+                        <button onclick="negotiate('risk')" class="btn-interactive bg-red-50 text-red-700 py-2 rounded-lg text-sm font-bold border border-red-100 hover:bg-red-100">
+                            🔥 مخاطرة
+                        </button>
+                    </div>
+
+                    <button onclick="resetNegotiation()" class="w-full text-xs text-stone-400 hover:text-stone-600 underline">إعادة المحاكاة</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: World Map & Economy -->
+        <section id="world" class="space-y-8">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-stone-800 mb-2">العالم والاقتصاد</h2>
+                <p class="text-stone-600">نظرة على بيئة اللعبة المفتوحة وتوزيع الميزانية التطويرية.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Map Abstract -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
+                    <h3 class="text-xl font-bold mb-4 text-stone-800 flex items-center gap-2">
+                        <span>🗺️</span> خريطة المدينة الحيوية
+                    </h3>
+                    <p class="text-sm text-stone-500 mb-6">المواقع الرئيسية التي سيتفاعل معها اللاعب يومياً لضمان سير العمل.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Location Cards -->
+                        <div class="bg-stone-50 p-4 rounded-xl border-l-4 border-amber-500 hover:bg-amber-50 transition-colors cursor-default">
+                            <div class="font-bold text-stone-800 mb-1">🏰 المعرض الرئيسي</div>
+                            <p class="text-xs text-stone-500">مركز العمليات. قابل للتوسعة وإضافة طوابق وصالة VIP.</p>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-xl border-l-4 border-blue-500 hover:bg-blue-50 transition-colors cursor-default">
+                            <div class="font-bold text-stone-800 mb-1">🧼 مغسلة السيارات</div>
+                            <p class="text-xs text-stone-500">ضرورية لرفع "لمعان" السيارة وزيادة سعرها قبل العرض.</p>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-xl border-l-4 border-red-500 hover:bg-red-50 transition-colors cursor-default">
+                            <div class="font-bold text-stone-800 mb-1">⛽ محطات الوقود</div>
+                            <p class="text-xs text-stone-500">موزعة في الخريطة. تسليم السيارة بخزان ممتلئ يرفع الرضا.</p>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-xl border-l-4 border-purple-500 hover:bg-purple-50 transition-colors cursor-default">
+                            <div class="font-bold text-stone-800 mb-1">🏢 معارض المنافسين</div>
+                            <p class="text-xs text-stone-500">يمكن زيارتها لمراقبة الأسعار وسرقة استراتيجياتهم.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Economy Chart -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100 flex flex-col items-center">
+                    <h3 class="text-xl font-bold mb-2 text-stone-800 w-full text-right">توزيع الميزانية (2500$)</h3>
+                    <p class="text-sm text-stone-500 mb-4 w-full text-right">خطة استثمار الميزانية لضمان أعلى جودة ممكنة.</p>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Roadmap -->
+        <section id="roadmap" class="bg-stone-100 rounded-3xl p-8 border border-stone-200">
+            <h2 class="text-3xl font-bold text-stone-800 mb-8 text-center">خارطة الطريق التقنية</h2>
+            <div class="relative max-w-4xl mx-auto pl-8 border-r-2 border-stone-300 space-y-8" dir="rtl">
+                
+                <!-- Phase 1 -->
+                <div class="relative pr-8">
+                    <div class="absolute -right-[9px] top-2 w-4 h-4 rounded-full bg-stone-800 ring-4 ring-stone-100"></div>
+                    <h4 class="text-xl font-bold text-stone-800">المرحلة 1: الأساس (Foundations)</h4>
+                    <p class="text-stone-600 mt-1">بناء المحرك الاقتصادي، نظام قواعد البيانات، والشراء الأولي.</p>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="relative pr-8">
+                    <div class="absolute -right-[9px] top-2 w-4 h-4 rounded-full bg-amber-500 ring-4 ring-stone-100"></div>
+                    <h4 class="text-xl font-bold text-amber-600">المرحلة 2: البيئة (Environment) - <span class="text-sm font-normal text-stone-500">التركيز الحالي</span></h4>
+                    <p class="text-stone-600 mt-1">تصميم المعرض، المحطة، وتطوير نظام الإضاءة (Ray Tracing) للجرافيكس "البطل".</p>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="relative pr-8">
+                    <div class="absolute -right-[9px] top-2 w-4 h-4 rounded-full bg-stone-400 ring-4 ring-stone-100"></div>
+                    <h4 class="text-xl font-bold text-stone-800">المرحلة 3: الأنظمة المتقدمة</h4>
+                    <p class="text-stone-600 mt-1">إضافة نظام الإصلاح، الموظفين، والمزادات التنافسية.</p>
+                </div>
+
+                <!-- Phase 4 & 5 -->
+                <div class="relative pr-8">
+                    <div class="absolute -right-[9px] top-2 w-4 h-4 rounded-full bg-stone-400 ring-4 ring-stone-100"></div>
+                    <h4 class="text-xl font-bold text-stone-800">المرحلة 4 & 5: الصقل والإطلاق</h4>
+                    <p class="text-stone-600 mt-1">دعم اللغتين، تحسين الأداء (Optimization)، والإطلاق النهائي.</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-900 text-stone-400 py-8 mt-12 text-center text-sm">
+        <div class="container mx-auto px-4">
+            <p class="mb-2 font-bold text-stone-200">ملك المعارض © 2026</p>
+            <p>تم تصميم هذه الوثيقة التفاعلية بناءً على وثيقة التصميم الشاملة (V 3.0) لفريق عبدالله سمير.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Navigation & UI Logic ---
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showTab(stepId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            // Show selected
+            document.getElementById(stepId).classList.remove('hidden');
+            
+            // Update buttons
+            document.querySelectorAll('.loop-tab').forEach(el => {
+                el.classList.remove('bg-stone-800', 'text-white', 'shadow-lg');
+                el.classList.add('bg-white', 'text-stone-600');
+            });
+            
+            const activeBtn = document.getElementById('btn-' + stepId);
+            activeBtn.classList.remove('bg-white', 'text-stone-600');
+            activeBtn.classList.add('bg-stone-800', 'text-white', 'shadow-lg');
+        }
+
+        // --- 2. Chart.js Config ---
+        Chart.defaults.font.family = "'Tajawal', sans-serif";
+        Chart.defaults.color = '#57534e';
+
+        // Car Data
+        const carData = {
+            economy: { label: 'اقتصادية', data: [30, 40, 60, 90, 80], desc: "رخيصة، استهلاك منخفض جداً، شعبية عالية." },
+            family: { label: 'عائلية', data: [50, 50, 80, 60, 70], desc: "توازن جيد بين الأمان والسعر." },
+            sport: { label: 'رياضية', data: [90, 90, 40, 20, 60], desc: "سرعة عالية وسعر مرتفع، لكن استهلاك وقود عالي." },
+            electric: { label: 'كهربائية', data: [70, 70, 70, 100, 50], desc: "عصرية، استهلاك ممتاز، سعر متوسط." },
+            rare: { label: 'نادرة', data: [100, 80, 60, 40, 30], desc: "قيمة عالية جداً، تجذب نوعية خاصة من الزبائن (VIP)." }
+        };
+
+        // Render Car Radar Chart
+        let carChartCtx = document.getElementById('carRadarChart').getContext('2d');
+        let carChart = new Chart(carChartCtx, {
+            type: 'radar',
+            data: {
+                labels: ['السعر', 'السرعة', 'الأمان', 'كفاءة الوقود', 'الشعبية'],
+                datasets: [{
+                    label: 'خصائص السيارة',
+                    data: carData.economy.data,
+                    backgroundColor: 'rgba(217, 119, 6, 0.2)', // Amber-600
+                    borderColor: 'rgba(217, 119, 6, 1)',
+                    pointBackgroundColor: 'rgba(217, 119, 6, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    r: {
+                        angleLines: { color: '#e5e7eb' },
+                        grid: { color: '#e5e7eb' },
+                        pointLabels: {
+                            font: { size: 12, weight: 'bold' },
+                            color: '#292524'
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        function updateCarChart() {
+            const type = document.getElementById('carTypeSelector').value;
+            const selection = carData[type];
+            
+            carChart.data.datasets[0].data = selection.data;
+            carChart.update();
+            
+            document.getElementById('carDescription').innerText = selection.desc;
+        }
+
+        // Render Budget Chart
+        let budgetCtx = document.getElementById('budgetChart').getContext('2d');
+        new Chart(budgetCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['تطوير البرمجيات (40%)', 'الأصول البصرية (40%)', 'الصوت والواجهات (20%)'],
+                datasets: [{
+                    data: [40, 40, 20],
+                    backgroundColor: [
+                        '#292524', // Stone-800
+                        '#d97706', // Amber-600
+                        '#a8a29e'  // Stone-400
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20 }
+                    }
+                }
+            }
+        });
+
+        // --- 3. Negotiation Simulator Logic ---
+        let currentSatisfaction = 50;
+        const satisfactionBar = document.getElementById('satisfactionBar');
+        const satisfactionText = document.getElementById('satisfactionValue');
+        const feedbackText = document.getElementById('feedbackText');
+
+        function negotiate(style) {
+            let change = 0;
+            let message = "";
+            let color = "";
+
+            // Simulation Logic based on GDD
+            // Smart: Small consistent gain.
+            // Normal: Neutral / slight variance.
+            // Risk: Big gain or Big drop.
+            
+            if (style === 'smart') {
+                change = 10;
+                message = "حجة منطقية قوية! الزبون مقتنع.";
+                color = "text-blue-600";
+            } else if (style === 'normal') {
+                change = 5;
+                message = "حوار جيد ومتزن.";
+                color = "text-stone-600";
+            } else if (style === 'risk') {
+                const success = Math.random() > 0.5;
+                if (success) {
+                    change = 25;
+                    message = "مخاطرة ناجحة! الزبون منبهر جداً.";
+                    color = "text-green-600";
+                } else {
+                    change = -20;
+                    message = "ضغطت كثيراً... الزبون منزعج.";
+                    color = "text-red-600";
+                }
+            }
+
+            currentSatisfaction += change;
+            if (currentSatisfaction > 100) currentSatisfaction = 100;
+            if (currentSatisfaction < 0) currentSatisfaction = 0;
+
+            // UI Updates
+            satisfactionBar.style.width = currentSatisfaction + '%';
+            satisfactionText.innerText = currentSatisfaction + '%';
+            
+            // Color change based on level
+            if (currentSatisfaction < 30) {
+                satisfactionBar.className = "bg-red-500 h-3 rounded-full transition-all duration-500";
+            } else if (currentSatisfaction > 70) {
+                satisfactionBar.className = "bg-green-500 h-3 rounded-full transition-all duration-500";
+            } else {
+                satisfactionBar.className = "bg-amber-500 h-3 rounded-full transition-all duration-500";
+            }
+
+            feedbackText.innerText = message;
+            feedbackText.className = "text-xs text-center mt-2 h-4 font-bold " + color;
+
+            if (currentSatisfaction >= 90) {
+                feedbackText.innerText = "🎉 تم البيع بنجاح! زادت السمعة.";
+            } else if (currentSatisfaction <= 10) {
+                feedbackText.innerText = "❌ فشل التفاوض. الزبون غادر.";
+            }
+        }
+
+        function resetNegotiation() {
+            currentSatisfaction = 50;
+            satisfactionBar.style.width = '50%';
+            satisfactionBar.className = "bg-amber-500 h-3 rounded-full transition-all duration-500";
+            satisfactionText.innerText = '50%';
+            feedbackText.innerText = "اختر أسلوباً للتفاوض...";
+            feedbackText.className = "text-xs text-center mt-2 text-stone-500 h-4";
+        }
+
+    </script>
+</body>
+</html>
